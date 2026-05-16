@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --no-src-dir --eslint --no-git --no-import-alias --force)",
+      "Bash(npx create-next-app@latest --help)",
+      "Bash(npm --version)",
+      "Bash(node -e \"const m = require\\('./node_modules/tsx/package.json'\\); console.log\\(m.version\\)\")"
+    ]
+  }
+}
