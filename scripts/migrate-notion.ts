@@ -211,9 +211,10 @@ function guessExtension(url: string, contentType: string | null): string {
   return 'jpg'
 }
 
+// storagePath에 확장자 없이 전달 — fetch 후 content-type 기준으로 결정
 async function uploadImageToStorage(
   notionUrl: string,
-  storagePath: string
+  storagePathWithoutExt: string
 ): Promise<string | null> {
   try {
     const controller = new AbortController()
@@ -224,15 +225,14 @@ async function uploadImageToStorage(
 
     if (!res.ok) throw new Error(`이미지 다운로드 실패: HTTP ${res.status}`)
 
-    const contentType = res.headers.get('content-type')
+    const contentType = res.headers.get('content-type') ?? 'image/jpeg'
+    const ext = guessExtension(notionUrl, contentType)
+    const storagePath = `${storagePathWithoutExt}.${ext}`
     const buffer = await res.arrayBuffer()
 
     const { error } = await supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(storagePath, buffer, {
-        contentType: contentType ?? 'image/jpeg',
-        upsert: true,
-      })
+      .upload(storagePath, buffer, { contentType, upsert: true })
 
     if (error) throw new Error(`Storage 업로드 실패: ${error.message}`)
 
@@ -243,7 +243,7 @@ async function uploadImageToStorage(
     return urlData.publicUrl
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error(`    ⚠️ 이미지 업로드 실패 (${storagePath}): ${msg}`)
+    console.error(`    ⚠️ 이미지 업로드 실패 (${storagePathWithoutExt}): ${msg}`)
     return null
   }
 }
@@ -340,8 +340,7 @@ async function migrateBooks(): Promise<MigrationStats> {
 
             if (!notionUrl) continue
 
-            const ext = guessExtension(notionUrl, null)
-            const storagePath = `pages/${bookId}/${block.id}.${ext}`
+            const storagePath = `pages/${bookId}/${block.id}`
             const publicUrl = await uploadImageToStorage(notionUrl, storagePath)
 
             if (publicUrl) {
@@ -390,7 +389,7 @@ async function migrateBooks(): Promise<MigrationStats> {
 
         const imgCount = pageInserts.filter(p => p.content_type === 'image').length
         console.log(
-          `  [${stats.booksProcessed}/129] ${bookData.title.substring(0, 28)}` +
+          `  [${stats.booksProcessed}] ${bookData.title.substring(0, 28)}` +
           ` — pages: ${pageInserts.length - imgCount}, images: ${imgCount}`
         )
       } catch (err) {

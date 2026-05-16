@@ -21,7 +21,7 @@ export interface Book {
 export interface BookPage {
   id: string
   bookId: string
-  contentType: 'highlight' | 'memo' | 'ai_chat' | 'diary'
+  contentType: 'highlight' | 'memo' | 'ai_chat' | 'diary' | 'image'
   pageNumber: number | null
   content: string
   createdAt: string

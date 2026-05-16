@@ -12,36 +12,25 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(
-          cookiesToSet: { name: string; value: string; options: CookieOptions }[],
-        ) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          )
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2]),
+            supabaseResponse.cookies.set(name, value, options),
           )
         },
       },
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // /api 경로 인증 필수
   if (request.nextUrl.pathname.startsWith('/api')) {
     if (!user) {
-      return NextResponse.json(
-        { error: '인증이 필요합니다.' },
-        { status: 401 },
-      )
+      return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
     }
   }
 
-  // /bookshelf, /mate 인증 필수
   if (
     request.nextUrl.pathname.startsWith('/bookshelf') ||
     request.nextUrl.pathname.startsWith('/mate')
