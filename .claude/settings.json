@@ -1,0 +1,22 @@
+{
+  "_comment": "새 프로젝트 초기화 시 agent_runtime/ 전체를 project/.claude/ 로 복사. 프로젝트별 추가 권한은 .claude/settings.local.json 에 작성.",
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/validate-reviewer-call.js"
+          }
+        ]
+      }
+    ]
+  },
+
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
+}

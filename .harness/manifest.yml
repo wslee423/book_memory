@@ -1,0 +1,14 @@
+harness_version: v0.1.0
+project: book_memory
+created: 2026-05-16
+owner: 운섭
+
+applied_packs:
+  - web-saas
+  - ai-agent-product
+
+customizations:
+  - 1인 사용자 — RLS 단순화 가능
+  - Notion 마이그레이션 포함 (data-tool 패턴 일부 적용)
+  - 한국어 UI 강제 (CONSTITUTION 원칙 4)
+  - Notion 쓰기 금지 (CONSTITUTION 원칙 5)
