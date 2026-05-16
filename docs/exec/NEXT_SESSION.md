@@ -8,69 +8,60 @@
 
 | 항목 | 내용 |
 |------|------|
-| 현재 Phase | Phase 1 — 기반 세팅 (🔄 진행 중) |
-| 마지막 완료 작업 | Next.js 14 초기화 + 기반 코드 작성 (typecheck/lint 0건) |
-| 다음 작업 | Supabase 스키마 실행 + 마이그레이션 스크립트 Notion 필드 매핑 구현 |
+| 현재 Phase | Phase 1 — 기반 세팅 (🔄 거의 완료) |
+| 마지막 완료 작업 | Notion → Supabase 마이그레이션 실행 완료 (129책 / 1,277 pages / 94 images) |
+| 다음 작업 | Vercel 배포 파이프라인 연결 → Phase 1 Gate 통과 |
 
 ---
 
-## 운섭이 직접 해야 하는 것 (다음 세션 전)
+## Phase 1 완료 조건 잔여 항목
 
-1. **Supabase 대시보드에서 SQL 실행** (순서 중요):
-   ```
-   1단계: scripts/schema.sql 실행
-   2단계: scripts/rls.sql 실행
-   ```
-   - 기존 Supabase 프로젝트의 SQL Editor에서 실행
-   - `book_memory` 스키마로 분리됨
-
-2. **.env.local 파일 작성**:
-   ```
-   .env.local.example 참고하여 D:\wlabs\book_memory\.env.local 생성
-   ```
-
-3. **Notion API Key 발급** (없으면):
-   - https://www.notion.so/my-integrations 에서 통합 생성
-   - 나의 책장 DB에 통합 연결
+- [ ] **Vercel 배포 파이프라인 연결** — 이것만 하면 Phase 1 완료
 
 ---
 
-## 다음 세션 시작 시 해야 할 일
+## Vercel 배포 방법 (다음 세션 작업)
 
-1. 운섭이 스키마 실행 + .env.local 작성 완료 확인
-2. `docs/product-specs/bookshelf.md` 열어서 Notion 필드 매핑 확인
-3. Notion API로 실제 DB 필드 구조 조회 (migrate-notion.ts 실행 테스트)
-4. `scripts/migrate-notion.ts` Notion 필드 → books/book_pages 매핑 구현
-5. 마이그레이션 실행 + 검증 (운섭 승인 후)
-6. Vercel 배포 연결
+1. Vercel 대시보드에서 New Project → book_memory GitHub repo 연결
+2. Framework: Next.js 자동 감지
+3. 환경변수 설정 (`.env.local` 값 그대로):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+4. Deploy
 
 ---
 
 ## 미결 사항
 
-- 임베딩 모델 선택 (OD-001) — Phase 3 전에 결정. `scripts/schema-embeddings.sql` 실행 대기
-- Notion 이미지 만료 문제 처리 방안 (OD-002) — Phase 2 완료 전 결정 필요
+- OD-001: 임베딩 모델 선택 (Phase 3 착수 전 필수)
+- OD-002: Notion 표지 이미지 처리 → **현재: next.config.mjs 도메인 허용으로 처리 완료**
+- TD-001: 이미지 2건 만료 위험 (Phase 4에서 처리)
+
+---
+
+## 완료된 데이터 현황
+
+| 항목 | 수량 |
+|------|------|
+| books | 129개 |
+| book_pages (텍스트) | 1,183개 |
+| book_pages (이미지) | 94개 (Supabase Storage) |
+| 이미지 fallback (만료 위험) | 2개 (TD-001) |
 
 ---
 
 ## 참고
 
-- Notion DB URL: `https://www.notion.so/24b181ea72884e11bec06720581c1792`
-- Notion Data Source ID: `collection://0c501247-f877-4cbd-aed4-2f51832d968c`
 - GitHub: `https://github.com/wslee423/book_memory.git`
-- Supabase 스키마명: `book_memory` (기존 프로젝트에 스키마 분리)
-- 마이그레이션 실행: `npm run migrate` (터미널 직접 실행, API Route 없음)
+- Supabase URL: `https://lubknrqpyyhtnbkoruhq.supabase.co`
+- Storage bucket: `book-media` (public)
+- 마이그레이션 재실행: `npm run migrate` (upsert이므로 중복 없음)
 
 ## 🔖 다음 세션 핸드오프
 
-**현재 Phase**: Phase 1 — 기반 세팅 (진행 중)
-**마지막 완료**: Next.js 14 초기화, TypeScript 타입, Supabase 클라이언트, Notion 클라이언트, 마이그레이션 스크립트 skeleton, SQL 파일 작성
-**다음 할 것**: 스키마 SQL 실행 확인 + 마이그레이션 스크립트 Notion 필드 매핑 완성
-
-**막힌 것**:
-- 마이그레이션 스크립트: Notion 실제 필드 구조를 API로 조회해야 매핑 구현 가능 → 운섭이 .env.local 설정 후 진행
-
-**결정 필요**:
-- OD-001: 임베딩 모델 선택 (OpenAI 1536차원 / Anthropic 1024차원) — Phase 3 전 필수
+**현재 Phase**: Phase 1 — 기반 세팅 (Vercel 연결만 남음)
+**마지막 완료**: 마이그레이션 전체 실행 (책 129개, 이미지 94개 Storage 업로드)
+**다음 할 것**: Vercel 배포 연결 → Phase 1 Gate → Phase 2 착수
 
 **세션 종료 시각**: 2026-05-16
