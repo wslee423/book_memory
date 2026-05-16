@@ -46,3 +46,16 @@ export interface ChatSource {
 export type ApiResponse<T> =
   | { data: T; error: null }
   | { data: null; error: string }
+
+export interface BookStats {
+  total: number
+  completed: number
+  thisMonth: number
+}
+
+export interface FilterState {
+  status: string
+  category: string
+  rating: string
+  keywords: string[]
+}
