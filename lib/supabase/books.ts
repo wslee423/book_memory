@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Book, BookPage, BookStats } from '@/types'
+import { COMPLETED_STATUSES, type SortOption } from '@/lib/constants/book'
+import type { Book, BookPage, BookStats, ContentType } from '@/types'
 
 export interface FetchBooksParams {
   status?: string
@@ -7,7 +8,7 @@ export interface FetchBooksParams {
   rating?: number
   keywords?: string[]
   search?: string
-  sort?: 'read_end_desc' | 'rating_desc' | 'created_at_asc' | 'title_asc'
+  sort?: SortOption
 }
 
 interface RawBook {
@@ -33,7 +34,7 @@ interface RawBook {
 interface RawBookPage {
   id: string
   book_id: string
-  content_type: 'highlight' | 'memo' | 'ai_chat' | 'diary' | 'image'
+  content_type: ContentType
   page_number: number | null
   content: string
   created_at: string
@@ -72,7 +73,19 @@ function toBookPage(raw: RawBookPage): BookPage {
   }
 }
 
-type SortOption = FetchBooksParams['sort']
+const SORT_CONFIG: Record<SortOption, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
+  read_end_desc: { column: 'read_end', ascending: false, nullsFirst: false },
+  rating_desc: { column: 'rating', ascending: false, nullsFirst: false },
+  created_at_asc: { column: 'created_at', ascending: true },
+  title_asc: { column: 'title', ascending: true },
+}
+
+function sanitizeSearch(s: string): string {
+  return s
+    .replace(/[\\%_]/g, (c) => `\\${c}`)
+    .replace(/[,()]/g, ' ')
+    .trim()
+}
 
 export async function fetchBooks(params: FetchBooksParams): Promise<Book[]> {
   const supabase = await createClient()
@@ -85,36 +98,23 @@ export async function fetchBooks(params: FetchBooksParams): Promise<Book[]> {
   if (rating !== undefined) query = query.eq('rating', rating)
   if (keywords && keywords.length > 0) query = query.overlaps('keywords', keywords)
   if (search) {
-    query = query.or(
-      `title.ilike.%${search}%,author.ilike.%${search}%,summary.ilike.%${search}%,review.ilike.%${search}%`,
-    )
+    const safe = sanitizeSearch(search)
+    if (safe) {
+      query = query.or(
+        `title.ilike.%${safe}%,author.ilike.%${safe}%,summary.ilike.%${safe}%,review.ilike.%${safe}%`,
+      )
+    }
   }
 
-  query = applySortToQuery(query, sort)
+  const { column, ascending, nullsFirst } = SORT_CONFIG[sort ?? 'read_end_desc']
+  query = query.order(column, { ascending, nullsFirst })
 
   const { data, error } = await query
   if (error) {
-    console.error('fetchBooks error:', error)
+    console.error('[book_memory] fetchBooks error:', error)
     return []
   }
   return (data as RawBook[]).map(toBook)
-}
-
-function applySortToQuery(
-  query: ReturnType<ReturnType<ReturnType<Awaited<ReturnType<typeof createClient>>['schema']>['from']>['select']>,
-  sort: SortOption,
-) {
-  switch (sort) {
-    case 'rating_desc':
-      return query.order('rating', { ascending: false, nullsFirst: false })
-    case 'created_at_asc':
-      return query.order('created_at', { ascending: true })
-    case 'title_asc':
-      return query.order('title', { ascending: true })
-    case 'read_end_desc':
-    default:
-      return query.order('read_end', { ascending: false, nullsFirst: false })
-  }
 }
 
 export async function fetchBookById(id: string): Promise<Book | null> {
@@ -128,7 +128,7 @@ export async function fetchBookById(id: string): Promise<Book | null> {
     .single()
 
   if (error) {
-    if (error.code === 'PGRST116') return null  // not found, intentional
+    if (error.code === 'PGRST116') return null
     console.error('[book_memory] fetchBookById error:', error)
     return null
   }
@@ -146,7 +146,7 @@ export async function fetchBookPages(bookId: string): Promise<BookPage[]> {
     .order('created_at', { ascending: true })
 
   if (error || !data) {
-    console.error('fetchBookPages error:', error)
+    console.error('[book_memory] fetchBookPages error:', error)
     return []
   }
 
@@ -162,7 +162,7 @@ export async function fetchBookStats(): Promise<BookStats> {
     .select('status, read_end')
 
   if (error || !allBooks) {
-    console.error('fetchBookStats error:', error)
+    console.error('[book_memory] fetchBookStats error:', error)
     return { total: 0, completed: 0, thisMonth: 0 }
   }
 
@@ -172,13 +172,8 @@ export async function fetchBookStats(): Promise<BookStats> {
     .split('T')[0]!
 
   const total = allBooks.length
-  const completed = allBooks.filter(
-    (b) => b.status === '완독' || b.status === '완독 2회차' || b.status === '서평완료',
-  ).length
-  const thisMonth = allBooks.filter((b) => {
-    if (!b.read_end) return false
-    return b.read_end >= thisMonthStart
-  }).length
+  const completed = allBooks.filter((b) => b.status && COMPLETED_STATUSES.includes(b.status)).length
+  const thisMonth = allBooks.filter((b) => b.read_end && b.read_end >= thisMonthStart).length
 
   return { total, completed, thisMonth }
 }
@@ -221,7 +216,7 @@ export async function fetchAllKeywords(): Promise<string[]> {
     .select('keywords')
 
   if (error || !data) {
-    console.error('fetchAllKeywords error:', error)
+    console.error('[book_memory] fetchAllKeywords error:', error)
     return []
   }
 

@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import type { Book, BookStats, FilterState } from '@/types'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import type { ApiResponse, Book, BookStats, FilterState, ViewMode } from '@/types'
+import { SORT_OPTIONS, type SortOption } from '@/lib/constants/book'
 import { BookGallery } from '@/components/bookshelf/BookGallery'
 import { BookTable } from '@/components/bookshelf/BookTable'
 import { BookFilter } from '@/components/bookshelf/BookFilter'
-
-type SortOption = 'read_end_desc' | 'rating_desc' | 'created_at_asc' | 'title_asc'
 
 interface BookshelfClientProps {
   initialBooks: Book[]
@@ -17,8 +16,24 @@ interface BookshelfClientProps {
 const DEFAULT_FILTERS: FilterState = {
   status: '',
   category: '',
-  rating: '',
+  rating: null,
   keywords: [],
+}
+
+const SEARCH_DEBOUNCE_MS = 300
+
+const SELECT_CLASS =
+  'border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400'
+
+function buildSearchParams(filters: FilterState, search: string, sort: SortOption): URLSearchParams {
+  const params = new URLSearchParams()
+  if (filters.status) params.set('status', filters.status)
+  if (filters.category) params.set('category', filters.category)
+  if (filters.rating !== null) params.set('rating', String(filters.rating))
+  if (filters.keywords.length > 0) params.set('keywords', filters.keywords.join(','))
+  if (search) params.set('search', search)
+  if (sort !== 'read_end_desc') params.set('sort', sort)
+  return params
 }
 
 function useBookshelf(initialBooks: Book[]) {
@@ -26,51 +41,53 @@ function useBookshelf(initialBooks: Book[]) {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [searchQuery, setSearchQuery] = useState('')
   const [sort, setSort] = useState<SortOption>('read_end_desc')
-  const [viewMode, setViewMode] = useState<'gallery' | 'table'>('gallery')
+  const [viewMode, setViewMode] = useState<ViewMode>('gallery')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const isInitialState =
     searchQuery === '' &&
     filters.status === '' &&
     filters.category === '' &&
-    filters.rating === '' &&
+    filters.rating === null &&
     filters.keywords.length === 0 &&
     sort === 'read_end_desc'
 
-  const loadBooks = useCallback(async () => {
+  const loadBooks = useCallback(async (signal: AbortSignal) => {
     setLoading(true)
     setError(null)
     try {
-      const params = new URLSearchParams()
-      if (filters.status) params.set('status', filters.status)
-      if (filters.category) params.set('category', filters.category)
-      if (filters.rating) params.set('rating', filters.rating)
-      if (filters.keywords.length > 0) params.set('keywords', filters.keywords.join(','))
-      if (searchQuery) params.set('search', searchQuery)
-      if (sort !== 'read_end_desc') params.set('sort', sort)
-      const res = await fetch(`/api/books?${params.toString()}`)
-      if (!res.ok) {
-        const json = (await res.json()) as { error: string }
-        throw new Error(json.error ?? '알 수 없는 오류')
-      }
-      const json = (await res.json()) as { data: Book[]; error: null }
-      setBooks(json.data)
+      const params = buildSearchParams(filters, searchQuery, sort)
+      const res = await fetch(`/api/books?${params.toString()}`, { signal })
+      const json = (await res.json()) as ApiResponse<Book[]>
+      if (!res.ok || json.error) throw new Error(json.error ?? '알 수 없는 오류')
+      if (!signal.aborted) setBooks(json.data ?? [])
     } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return
       setError(e instanceof Error ? e.message : '오류가 발생했습니다.')
     } finally {
-      setLoading(false)
+      if (!signal.aborted) setLoading(false)
     }
   }, [filters, sort, searchQuery])
 
   useEffect(() => {
     if (isInitialState) {
+      abortRef.current?.abort()
       setBooks(initialBooks)
+      setError(null)
+      setLoading(false)
       return
     }
-    const t = setTimeout(() => { void loadBooks() }, 300)
-    return () => clearTimeout(t)
-  }, [searchQuery, filters, sort, isInitialState, initialBooks, loadBooks])
+    const controller = new AbortController()
+    abortRef.current?.abort()
+    abortRef.current = controller
+    const t = setTimeout(() => { void loadBooks(controller.signal) }, SEARCH_DEBOUNCE_MS)
+    return () => {
+      clearTimeout(t)
+      controller.abort()
+    }
+  }, [isInitialState, initialBooks, loadBooks])
 
   const categories = useMemo(() => {
     const set = new Set<string>()
@@ -86,30 +103,34 @@ function useBookshelf(initialBooks: Book[]) {
     setSort('read_end_desc')
   }
 
+  const retry = () => {
+    const controller = new AbortController()
+    abortRef.current?.abort()
+    abortRef.current = controller
+    void loadBooks(controller.signal)
+  }
+
   return {
     books, filters, setFilters, searchQuery, setSearchQuery,
     sort, setSort, viewMode, setViewMode, loading, error,
-    categories, handleReset, loadBooks,
+    categories, handleReset, retry,
   }
 }
 
-// ── 하위 컴포넌트들 ────────────────────────────────────────────
-
 function BookshelfHeader({ stats }: { stats: BookStats }) {
+  const items: { label: string; value: number }[] = [
+    { label: '전체', value: stats.total },
+    { label: '완독', value: stats.completed },
+    { label: '이번 달', value: stats.thisMonth },
+  ]
   return (
     <div className="flex flex-wrap gap-4 mb-6">
-      <div className="bg-gray-50 rounded-lg px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-        <p className="text-sm text-gray-500 mt-0.5">전체</p>
-      </div>
-      <div className="bg-gray-50 rounded-lg px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-        <p className="text-sm text-gray-500 mt-0.5">완독</p>
-      </div>
-      <div className="bg-gray-50 rounded-lg px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-gray-900">{stats.thisMonth}</p>
-        <p className="text-sm text-gray-500 mt-0.5">이번 달</p>
-      </div>
+      {items.map((it) => (
+        <div key={it.label} className="bg-gray-50 rounded-lg px-4 py-3 text-center">
+          <p className="text-2xl font-bold text-gray-900">{it.value}</p>
+          <p className="text-sm text-gray-500 mt-0.5">{it.label}</p>
+        </div>
+      ))}
     </div>
   )
 }
@@ -142,42 +163,34 @@ function BookshelfControls({
 }: {
   sort: SortOption
   onSortChange: (s: SortOption) => void
-  viewMode: 'gallery' | 'table'
-  onViewModeChange: (v: 'gallery' | 'table') => void
+  viewMode: ViewMode
+  onViewModeChange: (v: ViewMode) => void
 }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <select
         value={sort}
         onChange={(e) => onSortChange(e.target.value as SortOption)}
-        className="border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+        className={SELECT_CLASS}
       >
-        <option value="read_end_desc">완독일 최신순</option>
-        <option value="rating_desc">별점 높은순</option>
-        <option value="created_at_asc">등록일 오래된순</option>
-        <option value="title_asc">제목 가나다순</option>
+        {SORT_OPTIONS.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
       </select>
       <div className="flex gap-1">
-        <button
-          onClick={() => onViewModeChange('gallery')}
-          className={`px-3 py-1.5 text-sm rounded border transition-colors ${
-            viewMode === 'gallery'
-              ? 'bg-gray-900 text-white border-gray-900'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-gray-500'
-          }`}
-        >
-          갤러리
-        </button>
-        <button
-          onClick={() => onViewModeChange('table')}
-          className={`px-3 py-1.5 text-sm rounded border transition-colors ${
-            viewMode === 'table'
-              ? 'bg-gray-900 text-white border-gray-900'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-gray-500'
-          }`}
-        >
-          표
-        </button>
+        {(['gallery', 'table'] as const).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => onViewModeChange(mode)}
+            className={`px-3 py-1.5 text-sm rounded border transition-colors ${
+              viewMode === mode
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-gray-500'
+            }`}
+          >
+            {mode === 'gallery' ? '갤러리' : '표'}
+          </button>
+        ))}
       </div>
     </div>
   )
@@ -193,7 +206,7 @@ function BookshelfContent({
   loading: boolean
   error: string | null
   books: Book[]
-  viewMode: 'gallery' | 'table'
+  viewMode: ViewMode
   onRetry: () => void
 }) {
   if (error) {
@@ -214,13 +227,11 @@ function BookshelfContent({
   return <BookTable books={books} />
 }
 
-// ── 본체 ──────────────────────────────────────────────────────
-
 export function BookshelfClient({ initialBooks, stats, allKeywords }: BookshelfClientProps) {
   const {
     books, filters, setFilters, searchQuery, setSearchQuery,
     sort, setSort, viewMode, setViewMode, loading, error,
-    categories, handleReset, loadBooks,
+    categories, handleReset, retry,
   } = useBookshelf(initialBooks)
 
   return (
@@ -247,13 +258,13 @@ export function BookshelfClient({ initialBooks, stats, allKeywords }: BookshelfC
         error={error}
         books={books}
         viewMode={viewMode}
-        onRetry={() => void loadBooks()}
+        onRetry={retry}
       />
     </main>
   )
 }
 
-function BookSkeleton({ viewMode }: { viewMode: 'gallery' | 'table' }) {
+function BookSkeleton({ viewMode }: { viewMode: ViewMode }) {
   if (viewMode === 'table') {
     return (
       <div className="space-y-2">

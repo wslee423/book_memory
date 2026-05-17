@@ -1,6 +1,7 @@
 'use client'
 
 import type { FilterState } from '@/types'
+import { STATUS_OPTIONS, RATING_OPTIONS } from '@/lib/constants/book'
 
 interface BookFilterProps {
   filters: FilterState
@@ -10,19 +11,8 @@ interface BookFilterProps {
   onReset: () => void
 }
 
-const STATUS_OPTIONS = [
-  '완독',
-  '읽는 중',
-  '읽고 싶은 책',
-  '완독 2회차',
-  '중단',
-  '소장',
-  '서평완료',
-  '속독',
-  '상시',
-]
-
-const RATING_OPTIONS = [1, 2, 3, 4, 5]
+const SELECT_CLASS =
+  'border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400'
 
 export function BookFilter({
   filters,
@@ -31,67 +21,54 @@ export function BookFilter({
   onFilterChange,
   onReset,
 }: BookFilterProps) {
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, status: e.target.value })
-  }
-
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, category: e.target.value })
-  }
-
-  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, rating: e.target.value })
+  const setField = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+    onFilterChange({ ...filters, [key]: value })
   }
 
   const toggleKeyword = (kw: string) => {
     const next = filters.keywords.includes(kw)
       ? filters.keywords.filter((k) => k !== kw)
       : [...filters.keywords, kw]
-    onFilterChange({ ...filters, keywords: next })
+    setField('keywords', next)
   }
 
   const hasActiveFilter =
     filters.status !== '' ||
     filters.category !== '' ||
-    filters.rating !== '' ||
+    filters.rating !== null ||
     filters.keywords.length > 0
+
+  const ratingValue = filters.rating === null ? '' : String(filters.rating)
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2 items-center">
-        {/* 상태 */}
         <select
           value={filters.status}
-          onChange={handleStatusChange}
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+          onChange={(e) => setField('status', e.target.value)}
+          className={SELECT_CLASS}
         >
           <option value="">전체 상태</option>
           {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
+            <option key={s} value={s}>{s}</option>
           ))}
         </select>
 
-        {/* 분류 */}
         <select
           value={filters.category}
-          onChange={handleCategoryChange}
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+          onChange={(e) => setField('category', e.target.value)}
+          className={SELECT_CLASS}
         >
           <option value="">전체 분류</option>
           {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
 
-        {/* 별점 */}
         <select
-          value={filters.rating}
-          onChange={handleRatingChange}
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+          value={ratingValue}
+          onChange={(e) => setField('rating', e.target.value === '' ? null : Number(e.target.value))}
+          className={SELECT_CLASS}
         >
           <option value="">전체 별점</option>
           {RATING_OPTIONS.map((r) => (
@@ -101,7 +78,6 @@ export function BookFilter({
           ))}
         </select>
 
-        {/* 초기화 */}
         {hasActiveFilter && (
           <button
             onClick={onReset}
@@ -112,7 +88,6 @@ export function BookFilter({
         )}
       </div>
 
-      {/* 키워드 배지 */}
       {allKeywords.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {allKeywords.map((kw) => {

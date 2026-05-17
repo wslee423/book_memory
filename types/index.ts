@@ -18,10 +18,12 @@ export interface Book {
   updatedAt: string
 }
 
+export type ContentType = 'highlight' | 'memo' | 'ai_chat' | 'diary' | 'image'
+
 export interface BookPage {
   id: string
   bookId: string
-  contentType: 'highlight' | 'memo' | 'ai_chat' | 'diary' | 'image'
+  contentType: ContentType
   pageNumber: number | null
   content: string
   createdAt: string
@@ -56,6 +58,8 @@ export interface BookStats {
 export interface FilterState {
   status: string
   category: string
-  rating: string
+  rating: number | null
   keywords: string[]
 }
+
+export type ViewMode = 'gallery' | 'table'

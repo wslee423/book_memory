@@ -3,13 +3,13 @@ import { fetchBookById, fetchBookPages, fetchAdjacentBooks } from '@/lib/supabas
 import { BookDetailClient } from '@/components/bookshelf/BookDetailClient'
 
 export default async function BookDetailPage({ params }: { params: { id: string } }) {
-  const book = await fetchBookById(params.id)
-  if (!book) notFound()
-
-  const [pages, adjacent] = await Promise.all([
+  const [book, pages, adjacent] = await Promise.all([
+    fetchBookById(params.id),
     fetchBookPages(params.id),
     fetchAdjacentBooks(params.id),
   ])
+
+  if (!book) notFound()
 
   return (
     <BookDetailClient

@@ -1,23 +1,22 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { fetchBookById, fetchBookPages } from '@/lib/supabase/books'
+import { requireUser } from '@/lib/auth/require-user'
 import type { ApiResponse, Book, BookPage } from '@/types'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-): Promise<NextResponse<ApiResponse<{ book: Book; pages: BookPage[] }>>> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+type DetailResponse = ApiResponse<{ book: Book; pages: BookPage[] }>
 
-  if (!user) {
-    return NextResponse.json({ data: null, error: '인증이 필요합니다.' }, { status: 401 })
-  }
+export async function GET(
+  _request: Request,
+  { params }: { params: { id: string } },
+): Promise<NextResponse<DetailResponse>> {
+  const { user, response } = await requireUser()
+  if (!user) return response as NextResponse<DetailResponse>
 
   try {
-    const book = await fetchBookById(params.id)
+    const [book, pages] = await Promise.all([
+      fetchBookById(params.id),
+      fetchBookPages(params.id),
+    ])
 
     if (!book) {
       return NextResponse.json(
@@ -26,7 +25,6 @@ export async function GET(
       )
     }
 
-    const pages = await fetchBookPages(params.id)
     return NextResponse.json({ data: { book, pages }, error: null }, { status: 200 })
   } catch (err) {
     console.error('GET /api/books/[id] error:', err)

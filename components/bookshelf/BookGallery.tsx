@@ -4,6 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Book } from '@/types'
 import { StarRating } from '@/components/ui/StarRating'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface BookGalleryProps {
   books: Book[]
@@ -11,11 +13,7 @@ interface BookGalleryProps {
 
 export function BookGallery({ books }: BookGalleryProps) {
   if (books.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-48 text-gray-400">
-        조건에 맞는 책이 없습니다.
-      </div>
-    )
+    return <EmptyState message="조건에 맞는 책이 없습니다." />
   }
 
   return (
@@ -52,11 +50,7 @@ export function BookGallery({ books }: BookGalleryProps) {
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1">
               <StarRating rating={book.rating} />
-              {book.status && (
-                <span className="inline-block text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-                  {book.status}
-                </span>
-              )}
+              <StatusBadge status={book.status} />
             </div>
           </div>
         </Link>
