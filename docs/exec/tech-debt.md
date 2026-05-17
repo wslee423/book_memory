@@ -15,3 +15,7 @@
 | TD-009 | search ILIKE 풀스캔 (leading wildcard `%search%`) — 인덱스 사용 불가. 데이터 증가 시 `pg_trgm` GIN 인덱스 또는 `tsvector` 도입 검토 | Low | Phase 2 | Phase 3 RAG 강화 시 |
 | TD-010 | `BookPageItem`의 책 페이지 이미지는 일반 `<img>` 사용 (Supabase Storage 도메인). `next/image` 도메인 화이트리스트(`next.config.mjs`)에 Supabase Storage URL 등록 후 `next/image`로 전환 가능 | Low | Phase 2 | 표지 외 페이지 이미지 활용도 따라 결정 |
 | TD-011 | DB CHECK 제약(`book_pages.content_type`)은 4종(`highlight`/`memo`/`ai_chat`/`diary`)만 허용하지만, 마이그레이션은 `image` 타입으로 94건 insert 성공. 스키마/실제 데이터/TS 타입(`ContentType`) 정합성 확인 필요. 마이그레이션 단계에서 CHECK 제약을 수정했을 가능성. | Low | Phase 2 | 다음 마이그레이션/스키마 변경 시 함께 |
+| TD-012 | `scripts/embed-all.ts` Rate Limit 대응이 딜레이 하드코딩(image 800ms / text 50ms) — exponential backoff 없음. API 부하 증가 시 실패 위험 | Low | Phase 3 | Phase 5 재임베딩 전 |
+| TD-013 | `scripts/embed-all.ts` N+1 쿼리 패턴 — 책마다 book_pages 개별 조회. 전체 배치 실행 시 쿼리 수 = 책 수. IN 절 또는 조인 쿼리로 개선 가능 | Low | Phase 3 | Phase 5 재임베딩 전 |
+| TD-014 | `app/stats/page.tsx`, `app/timeline/page.tsx`가 API route와 동일한 DB 집계 로직 중복 — Server Component에서 직접 Supabase 쿼리 vs API route 이중 구현 상태 | Low | Phase 4 | Phase 5 리팩터링 |
+| TD-015 | `Book.status`가 `string \| null` — enum 타입 없음. 타입 안전 비교 불가 (`=== 'reading'` 등 리터럴 비교 전체에 영향). `'reading' \| 'completed' \| 'paused' \| null` union 타입 또는 const enum 도입 필요 | Medium | Phase 4 | Phase 5 타입 강화 |
