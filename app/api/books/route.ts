@@ -4,7 +4,7 @@ import { requireUser } from '@/lib/auth/require-user'
 import { createClient } from '@/lib/supabase/server'
 import { embedText } from '@/lib/rag/embed'
 import { SORT_OPTIONS, type SortOption } from '@/lib/constants/book'
-import type { ApiResponse, Book } from '@/types'
+import type { ApiResponse, Book, BookStatus } from '@/types'
 
 const VALID_SORTS: readonly string[] = SORT_OPTIONS.map((s) => s.value)
 
@@ -33,7 +33,7 @@ interface RawBook {
   title: string
   author: string | null
   category: string | null
-  status: string | null
+  status: BookStatus | null
   rating: number | null
   keywords: string[]
   one_word: string[]

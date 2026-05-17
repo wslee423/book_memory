@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { COMPLETED_STATUSES, type SortOption } from '@/lib/constants/book'
-import type { Book, BookPage, BookStats, ContentType } from '@/types'
+import type { Book, BookPage, BookStats, BookStatus, ContentType } from '@/types'
 
 export interface FetchBooksParams {
   status?: string
@@ -17,7 +17,7 @@ interface RawBook {
   title: string
   author: string | null
   category: string | null
-  status: string | null
+  status: BookStatus | null
   rating: number | null
   keywords: string[] | null
   one_word: string[] | null

@@ -1,10 +1,21 @@
+export type BookStatus =
+  | '완독'
+  | '읽는 중'
+  | '읽고 싶은 책'
+  | '완독 2회차'
+  | '중단'
+  | '소장'
+  | '서평완료'
+  | '속독'
+  | '상시'
+
 export interface Book {
   id: string
   notionId: string | null
   title: string
   author: string | null
   category: string | null
-  status: string | null
+  status: BookStatus | null
   rating: number | null
   keywords: string[]
   oneWord: string[]

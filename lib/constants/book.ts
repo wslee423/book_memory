@@ -1,3 +1,5 @@
+import type { BookStatus } from '@/types'
+
 export const STATUS_OPTIONS = [
   '완독',
   '읽는 중',
@@ -8,9 +10,9 @@ export const STATUS_OPTIONS = [
   '서평완료',
   '속독',
   '상시',
-] as const
+] as const satisfies readonly BookStatus[]
 
-export const COMPLETED_STATUSES: readonly string[] = [
+export const COMPLETED_STATUSES: readonly BookStatus[] = [
   '완독',
   '완독 2회차',
   '서평완료',

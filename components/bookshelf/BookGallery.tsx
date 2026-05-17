@@ -30,9 +30,9 @@ export function BookGallery({ books }: BookGalleryProps) {
                 <Image
                   src={book.coverUrl}
                   alt={book.title}
-                  width={200}
-                  height={280}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
+                  className="object-cover"
                 />
               </div>
             ) : (

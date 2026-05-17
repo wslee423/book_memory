@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth/require-user'
 import { createClient } from '@/lib/supabase/server'
-import type { StatsData } from '@/types'
+import { COMPLETED_STATUSES } from '@/lib/constants/book'
+import type { BookStatus, StatsData } from '@/types'
 
 interface RawBook {
-  status: string | null
+  status: BookStatus | null
   rating: number | null
   category: string | null
   read_end: string | null
@@ -59,7 +60,7 @@ export async function GET() {
   const byRating = [1, 2, 3, 4, 5].map((r) => ({ rating: r, count: ratingMap.get(r) ?? 0 }))
 
   // 개요
-  const completed = books.filter((b) => b.status === '완독' || b.status === '읽음').length
+  const completed = books.filter((b) => b.status != null && COMPLETED_STATUSES.includes(b.status)).length
   const reading = books.filter((b) => b.status === '읽는 중').length
   const rated = books.filter((b) => b.rating != null)
   const avgRating = rated.length > 0

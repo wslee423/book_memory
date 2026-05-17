@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { BookPage, ContentType } from '@/types'
 
 interface BookPageItemProps {
@@ -26,13 +27,19 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
   if (page.contentType === 'image') {
     return (
       <div className="rounded-lg overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={page.content} alt="책 페이지 이미지" className="max-w-full" />
+        <Image
+          src={page.content}
+          alt="책 페이지 이미지"
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: '100%', height: 'auto' }}
+        />
       </div>
     )
   }
 
-  const borderClass = LEFT_BORDER[page.contentType as Exclude<ContentType, 'image'>]
+  const borderClass = LEFT_BORDER[page.contentType]
 
   async function handleSave() {
     if (!editContent.trim() || editContent === page.content) { setEditing(false); return }
