@@ -99,7 +99,6 @@ export type StreamChunk =
 export interface StatsData {
   monthly: { month: string; count: number }[]
   byCategory: { category: string; count: number }[]
-  byRating: { rating: number; count: number }[]
   overview: { total: number; completed: number; reading: number; avgRating: number | null }
 }
 

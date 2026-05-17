@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { STATUS_OPTIONS } from '@/lib/constants/book'
+import type { Book, BookStatus } from '@/types'
 
 const INPUT = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
 const LABEL = 'block text-sm font-medium text-gray-700 mb-1'
@@ -16,22 +16,28 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-export function BookForm({ categories = [] }: { categories?: string[] }) {
-  const router = useRouter()
+interface BookEditFormProps {
+  book: Book
+  categories: string[]
+  onSaved: (updated: Book) => void
+  onCancel: () => void
+}
+
+export function BookEditForm({ book, categories, onSaved, onCancel }: BookEditFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [category, setCategory] = useState('')
-  const [status, setStatus] = useState('')
-  const [rating, setRating] = useState<number | null>(null)
-  const [keywords, setKeywords] = useState('')
-  const [summary, setSummary] = useState('')
-  const [review, setReview] = useState('')
-  const [readStart, setReadStart] = useState('')
-  const [readEnd, setReadEnd] = useState('')
-  const [coverUrl, setCoverUrl] = useState('')
+  const [title, setTitle] = useState(book.title)
+  const [author, setAuthor] = useState(book.author ?? '')
+  const [category, setCategory] = useState(book.category ?? '')
+  const [status, setStatus] = useState<BookStatus | ''>(book.status ?? '')
+  const [rating, setRating] = useState<number | null>(book.rating)
+  const [keywords, setKeywords] = useState(book.keywords.join(', '))
+  const [summary, setSummary] = useState(book.summary ?? '')
+  const [review, setReview] = useState(book.review ?? '')
+  const [readStart, setReadStart] = useState(book.readStart?.slice(0, 10) ?? '')
+  const [readEnd, setReadEnd] = useState(book.readEnd?.slice(0, 10) ?? '')
+  const [coverUrl, setCoverUrl] = useState(book.coverUrl ?? '')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,26 +45,26 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
     setLoading(true); setError(null)
 
     try {
-      const res = await fetch('/api/books', {
-        method: 'POST',
+      const res = await fetch(`/api/books/${book.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          author: author.trim() || undefined,
-          category: category.trim() || undefined,
-          status: status || undefined,
+          author: author.trim() || null,
+          category: category.trim() || null,
+          status: (status as BookStatus) || null,
           rating,
           keywords: keywords.split(',').map((k) => k.trim()).filter(Boolean),
-          summary: summary.trim() || undefined,
-          review: review.trim() || undefined,
+          summary: summary.trim() || null,
+          review: review.trim() || null,
           readStart: readStart || null,
           readEnd: readEnd || null,
           coverUrl: coverUrl.trim() || null,
         }),
       })
       const json = await res.json()
-      if (!res.ok || json.error) { setError(json.error ?? '등록 실패'); return }
-      router.push(`/bookshelf/${json.data.id}`)
+      if (!res.ok || json.error) { setError(json.error ?? '수정 실패'); return }
+      onSaved(json.data)
     } catch {
       setError('네트워크 오류가 발생했습니다.')
     } finally {
@@ -67,24 +73,24 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-50 border border-gray-200 rounded-xl p-5">
       <Field label="제목 *">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="책 제목" className={INPUT} />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} className={INPUT} />
       </Field>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="저자">
-          <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="저자명" className={INPUT} />
+          <input value={author} onChange={(e) => setAuthor(e.target.value)} className={INPUT} />
         </Field>
         <Field label="분류">
           <input
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            list="new-category-list"
+            list="edit-category-list"
             placeholder="분류 선택 또는 직접 입력"
             className={INPUT}
           />
-          <datalist id="new-category-list">
+          <datalist id="edit-category-list">
             {categories.map((c) => <option key={c} value={c} />)}
           </datalist>
         </Field>
@@ -92,7 +98,7 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="읽기 상태">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className={INPUT}>
+          <select value={status} onChange={(e) => setStatus(e.target.value as BookStatus | '')} className={INPUT}>
             <option value="">선택 안 함</option>
             {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -123,15 +129,15 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
       </div>
 
       <Field label="키워드 (쉼표로 구분)">
-        <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="예: 리더십, 성장, 철학" className={INPUT} />
+        <input value={keywords} onChange={(e) => setKeywords(e.target.value)} className={INPUT} />
       </Field>
 
       <Field label="한줄 요약">
-        <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} placeholder="이 책을 한 문장으로 요약하면?" className={INPUT} />
+        <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} className={INPUT} />
       </Field>
 
       <Field label="한줄 평">
-        <textarea value={review} onChange={(e) => setReview(e.target.value)} rows={2} placeholder="이 책을 읽고 한마디 한다면?" className={INPUT} />
+        <textarea value={review} onChange={(e) => setReview(e.target.value)} rows={2} className={INPUT} />
       </Field>
 
       <Field label="표지 이미지 URL">
@@ -140,8 +146,8 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="flex gap-3 justify-end pt-2">
-        <button type="button" onClick={() => router.back()} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">
+      <div className="flex gap-3 justify-end pt-1">
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">
           취소
         </button>
         <button
@@ -149,7 +155,7 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
           disabled={loading}
           className="px-6 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
         >
-          {loading ? '등록 중...' : '책 등록'}
+          {loading ? '저장 중...' : '저장'}
         </button>
       </div>
     </form>

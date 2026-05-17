@@ -7,6 +7,7 @@ import type { Book, BookPage, ContentType } from '@/types'
 import { StarRating } from '@/components/ui/StarRating'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { BookPageItem } from '@/components/bookshelf/BookPageItem'
+import { BookEditForm } from '@/components/bookshelf/BookEditForm'
 import { MemoForm } from '@/components/bookshelf/MemoForm'
 import { formatReadPeriod } from '@/lib/utils/format'
 
@@ -22,6 +23,7 @@ interface BookDetailClientProps {
   pages: BookPage[]
   prev: AdjacentBook | null
   next: AdjacentBook | null
+  categories: string[]
 }
 
 const TAB_LABELS: { key: TabKey; label: string }[] = [
@@ -211,9 +213,11 @@ function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: Adjacent
   )
 }
 
-export function BookDetailClient({ book, pages: initialPages, prev, next }: BookDetailClientProps) {
+export function BookDetailClient({ book: initialBook, pages: initialPages, prev, next, categories }: BookDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('all')
   const [pages, setPages] = useState<BookPage[]>(initialPages)
+  const [book, setBook] = useState<Book>(initialBook)
+  const [editing, setEditing] = useState(false)
 
   function handlePageSaved(newPage: BookPage) {
     setPages((prev) => [...prev, newPage])
@@ -230,13 +234,36 @@ export function BookDetailClient({ book, pages: initialPages, prev, next }: Book
 
   return (
     <main className="min-h-screen bg-white px-4 py-8 max-w-4xl mx-auto">
-      <Link
-        href="/bookshelf"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
-      >
-        ← 책장으로 돌아가기
-      </Link>
-      <BookDetailMeta book={book} />
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href="/bookshelf"
+          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          ← 책장으로 돌아가기
+        </Link>
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg text-gray-600 hover:border-gray-500 hover:text-gray-900 transition-colors"
+          >
+            책 정보 수정
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="mb-8">
+          <BookEditForm
+            book={book}
+            categories={categories}
+            onSaved={(updated) => { setBook(updated); setEditing(false) }}
+            onCancel={() => setEditing(false)}
+          />
+        </div>
+      ) : (
+        <BookDetailMeta book={book} />
+      )}
+
       <div className="mb-6">
         <MemoForm bookId={book.id} onSaved={handlePageSaved} />
       </div>

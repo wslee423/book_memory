@@ -25,15 +25,11 @@ export async function GET() {
 
   const books = (data ?? []) as RawBook[]
 
-  // 월별 독서량 (read_end 기준, 최근 24개월)
+  // 월별 독서량 (전체 기간)
   const monthMap = new Map<string, number>()
-  const cutoff = new Date()
-  cutoff.setMonth(cutoff.getMonth() - 23)
-
   for (const b of books) {
     if (!b.read_end) continue
     const d = new Date(b.read_end)
-    if (d < cutoff) continue
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
     monthMap.set(key, (monthMap.get(key) ?? 0) + 1)
   }
@@ -51,14 +47,6 @@ export async function GET() {
     .map(([category, count]) => ({ category, count }))
     .sort((a, b) => b.count - a.count)
 
-  // 별점 분포
-  const ratingMap = new Map<number, number>()
-  for (const b of books) {
-    if (!b.rating) continue
-    ratingMap.set(b.rating, (ratingMap.get(b.rating) ?? 0) + 1)
-  }
-  const byRating = [1, 2, 3, 4, 5].map((r) => ({ rating: r, count: ratingMap.get(r) ?? 0 }))
-
   // 개요
   const completed = books.filter((b) => b.status != null && COMPLETED_STATUSES.includes(b.status)).length
   const reading = books.filter((b) => b.status === '읽는 중').length
@@ -70,7 +58,6 @@ export async function GET() {
   const statsData: StatsData = {
     monthly,
     byCategory,
-    byRating,
     overview: { total: books.length, completed, reading, avgRating },
   }
 

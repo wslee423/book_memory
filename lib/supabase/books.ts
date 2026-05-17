@@ -231,3 +231,12 @@ export async function fetchAllKeywords(): Promise<string[]> {
 
   return Array.from(keywordSet).sort()
 }
+
+export async function fetchAllCategories(): Promise<string[]> {
+  const supabase = await createClient()
+  const { data } = await supabase.schema('book_memory').from('books').select('category')
+  if (!data) return []
+  return Array.from(
+    new Set((data as { category: string | null }[]).map((b) => b.category).filter((c): c is string => c !== null))
+  ).sort()
+}
