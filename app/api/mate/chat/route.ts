@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth/require-user'
 import { createClient } from '@/lib/supabase/server'
 import { embedText } from '@/lib/rag/embed'
-import { searchSimilar, buildSources } from '@/lib/rag/search'
+import { searchSimilar, buildSources, fetchBookMap } from '@/lib/rag/search'
 import { buildSystemPrompt, buildContextBlock, buildUserMessage } from '@/lib/rag/prompts'
 import { getOpenAI, CHAT_MODEL, MAX_TOKENS } from '@/lib/openai/client'
 import type { ChatSource } from '@/types'
@@ -54,17 +54,30 @@ export async function POST(request: Request) {
 
   try {
     const TOP_K = 5
+    // text-embedding-3-small 기준 0.3 미만은 주제 연관성이 낮음
+    const MIN_SIMILARITY = 0.3
 
     // 1. 질문 임베딩
     const queryEmbedding = await embedText(message)
 
-    // 2. 유사도 검색 (TOP_K * 2 후보에서 TOP_K 선택)
+    // 2. 유사도 검색 (TOP_K * 2 후보 → 임계값 필터 → TOP_K 선택)
     const searchResults = await searchSimilar(queryEmbedding, TOP_K * 2)
 
-    // 3. 출처 구성 및 컨텍스트 구성 (동일한 TOP_K 기준)
-    const topResults = searchResults.slice(0, TOP_K)
-    const sources = await buildSources(topResults, TOP_K)
-    const contextBlock = buildContextBlock(topResults)
+    // 3. 책 정보 한 번만 조회 → 출처·컨텍스트 양쪽에 공유
+    const topResults = searchResults
+      .filter((r) => r.similarity >= MIN_SIMILARITY)
+      .slice(0, TOP_K)
+    const uniqueBookIds = Array.from(new Set(topResults.map((r) => r.bookId)))
+    const bookMap = await fetchBookMap(uniqueBookIds)
+
+    const sources = await buildSources(topResults, TOP_K, bookMap)
+    const contextBlock = buildContextBlock(
+      topResults.map((r) => ({
+        content: r.content,
+        bookTitle: bookMap.get(r.bookId)?.title ?? '알 수 없는 책',
+        sourceType: r.sourceType,
+      })),
+    )
     const userMsg = buildUserMessage(message, contextBlock)
     const systemPrompt = buildSystemPrompt()
 

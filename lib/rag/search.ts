@@ -19,6 +19,14 @@ export interface SearchResult {
   similarity: number
 }
 
+interface RawBook {
+  id: string
+  title: string
+  author: string | null
+}
+
+export type BookInfo = { title: string; author: string | null }
+
 export async function searchSimilar(
   queryEmbedding: number[],
   matchCount = 10,
@@ -39,33 +47,29 @@ export async function searchSimilar(
   }))
 }
 
-interface RawBook {
-  id: string
-  title: string
-  author: string | null
+export async function fetchBookMap(bookIds: string[]): Promise<Map<string, BookInfo>> {
+  if (bookIds.length === 0) return new Map()
+  const supabase = await createClient()
+  const { data: books } = await supabase
+    .schema('book_memory')
+    .from('books')
+    .select('id, title, author')
+    .in('id', bookIds)
+  return new Map<string, BookInfo>(
+    ((books ?? []) as RawBook[]).map((b) => [b.id, { title: b.title, author: b.author }]),
+  )
 }
 
 // top-N 검색 결과 → 중복 bookId 제거 후 ChatSource 변환
 export async function buildSources(
   results: SearchResult[],
   topK = 5,
+  bookMap?: Map<string, BookInfo>,
 ): Promise<ChatSource[]> {
-  const supabase = await createClient()
   const topResults = results.slice(0, topK)
-  const uniqueBookIds = Array.from(new Set(topResults.map((r) => r.bookId)))
-
-  const { data: books } = await supabase
-    .schema('book_memory')
-    .from('books')
-    .select('id, title, author')
-    .in('id', uniqueBookIds)
-
-  const bookMap = new Map<string, RawBook>(
-    ((books ?? []) as RawBook[]).map((b) => [b.id, b]),
-  )
-
+  const map = bookMap ?? await fetchBookMap(Array.from(new Set(topResults.map((r) => r.bookId))))
   return topResults.map((r) => {
-    const book = bookMap.get(r.bookId)
+    const book = map.get(r.bookId)
     return {
       bookId: r.bookId,
       pageId: r.pageId,
