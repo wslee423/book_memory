@@ -102,10 +102,7 @@ create table book_pages (
 ```sql
 create extension if not exists vector;
 
--- ⚠️ 벡터 차원은 OD-001 결정 후 확정
--- OpenAI text-embedding-3-small: 1536차원
--- Anthropic: 1024차원
--- 임베딩 모델 결정 전 스키마 실행 금지
+-- OD-001 결정 완료: OpenAI text-embedding-3-small (1536차원)
 
 create table embeddings (
   id           uuid primary key default gen_random_uuid(),
@@ -113,7 +110,7 @@ create table embeddings (
   page_id      uuid references book_pages(id) on delete cascade, -- book_meta 타입은 NULL 허용
   source_type  text not null,        -- 'book_meta' | 'page_content'
   content      text not null,        -- 임베딩 원본 텍스트
-  embedding    vector(1536),         -- 차원 수는 OD-001 결정 후 변경 가능
+  embedding    vector(1536),         -- OD-001 결정 완료: OpenAI text-embedding-3-small
   created_at   timestamptz default now()
 );
 

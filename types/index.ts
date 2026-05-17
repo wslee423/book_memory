@@ -63,3 +63,47 @@ export interface FilterState {
 }
 
 export type ViewMode = 'gallery' | 'table'
+
+export interface EmbeddingRecord {
+  id: string
+  bookId: string
+  pageId: string | null
+  sourceType: 'book_meta' | 'page_content'
+  content: string
+  createdAt: string
+}
+
+export interface ChatSession {
+  id: string
+  title: string
+  lastMessage: string
+  createdAt: string
+}
+
+export type StreamChunk =
+  | { type: 'sources'; sources: ChatSource[] }
+  | { type: 'text'; text: string }
+  | { type: 'error'; message: string }
+
+export interface StatsData {
+  monthly: { month: string; count: number }[]
+  byCategory: { category: string; count: number }[]
+  byRating: { rating: number; count: number }[]
+  overview: { total: number; completed: number; reading: number; avgRating: number | null }
+}
+
+export interface TimelineBook {
+  id: string
+  title: string
+  author: string | null
+  category: string | null
+  rating: number | null
+  coverUrl: string | null
+  readEnd: string
+}
+
+export interface TimelineMonth {
+  month: string
+  label: string
+  books: TimelineBook[]
+}

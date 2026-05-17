@@ -7,6 +7,7 @@ import type { Book, BookPage, ContentType } from '@/types'
 import { StarRating } from '@/components/ui/StarRating'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { BookPageItem } from '@/components/bookshelf/BookPageItem'
+import { MemoForm } from '@/components/bookshelf/MemoForm'
 import { formatReadPeriod } from '@/lib/utils/format'
 
 type TabKey = 'all' | Exclude<ContentType, 'image'>
@@ -127,10 +128,14 @@ function BookDetailPages({
   pages,
   activeTab,
   onTabChange,
+  onPageUpdated,
+  onPageDeleted,
 }: {
   pages: BookPage[]
   activeTab: TabKey
   onTabChange: (tab: TabKey) => void
+  onPageUpdated: (updated: BookPage) => void
+  onPageDeleted: (pageId: string) => void
 }) {
   const countsByType = useMemo(() => {
     const counts: Record<TabKey, number> = { all: pages.length, highlight: 0, memo: 0, ai_chat: 0, diary: 0 }
@@ -147,7 +152,7 @@ function BookDetailPages({
 
   return (
     <section>
-      <div className="flex gap-1 border-b border-gray-200 mb-4">
+      <div className="flex gap-1 border-b border-gray-200 mb-4 overflow-x-auto">
         {TAB_LABELS.map(({ key, label }) => {
           const count = countsByType[key]
           return (
@@ -171,9 +176,11 @@ function BookDetailPages({
           기록이 없습니다.
         </div>
       ) : (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-2">
           {filteredPages.map((page) => (
-            <BookPageItem key={page.id} page={page} />
+            <div key={page.id} className="group">
+              <BookPageItem page={page} onUpdated={onPageUpdated} onDeleted={onPageDeleted} />
+            </div>
           ))}
         </div>
       )}
@@ -183,18 +190,20 @@ function BookDetailPages({
 
 function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: AdjacentBook | null }) {
   return (
-    <nav className="flex justify-between mt-12 pt-6 border-t">
-      <div>
+    <nav className="flex justify-between gap-4 mt-12 pt-6 border-t text-sm">
+      <div className="min-w-0">
         {prev && (
-          <Link href={`/bookshelf/${prev.id}`} className="text-gray-600 hover:text-gray-900">
-            ← 이전: {prev.title}
+          <Link href={`/bookshelf/${prev.id}`} className="text-gray-600 hover:text-gray-900 flex items-center gap-1">
+            <span className="shrink-0">←</span>
+            <span className="truncate">{prev.title}</span>
           </Link>
         )}
       </div>
-      <div>
+      <div className="min-w-0 text-right">
         {next && (
-          <Link href={`/bookshelf/${next.id}`} className="text-gray-600 hover:text-gray-900">
-            다음: {next.title} →
+          <Link href={`/bookshelf/${next.id}`} className="text-gray-600 hover:text-gray-900 flex items-center gap-1 justify-end">
+            <span className="truncate">{next.title}</span>
+            <span className="shrink-0">→</span>
           </Link>
         )}
       </div>
@@ -202,8 +211,22 @@ function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: Adjacent
   )
 }
 
-export function BookDetailClient({ book, pages, prev, next }: BookDetailClientProps) {
+export function BookDetailClient({ book, pages: initialPages, prev, next }: BookDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('all')
+  const [pages, setPages] = useState<BookPage[]>(initialPages)
+
+  function handlePageSaved(newPage: BookPage) {
+    setPages((prev) => [...prev, newPage])
+    setActiveTab(newPage.contentType === 'image' ? 'all' : newPage.contentType as TabKey)
+  }
+
+  function handlePageUpdated(updated: BookPage) {
+    setPages((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+  }
+
+  function handlePageDeleted(pageId: string) {
+    setPages((prev) => prev.filter((p) => p.id !== pageId))
+  }
 
   return (
     <main className="min-h-screen bg-white px-4 py-8 max-w-4xl mx-auto">
@@ -214,7 +237,16 @@ export function BookDetailClient({ book, pages, prev, next }: BookDetailClientPr
         ← 책장으로 돌아가기
       </Link>
       <BookDetailMeta book={book} />
-      <BookDetailPages pages={pages} activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="mb-6">
+        <MemoForm bookId={book.id} onSaved={handlePageSaved} />
+      </div>
+      <BookDetailPages
+        pages={pages}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onPageUpdated={handlePageUpdated}
+        onPageDeleted={handlePageDeleted}
+      />
       <AdjacentNav prev={prev} next={next} />
     </main>
   )

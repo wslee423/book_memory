@@ -4,7 +4,25 @@
       "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --no-src-dir --eslint --no-git --no-import-alias --force)",
       "Bash(npx create-next-app@latest --help)",
       "Bash(npm --version)",
-      "Bash(node -e \"const m = require\\('./node_modules/tsx/package.json'\\); console.log\\(m.version\\)\")"
+      "Bash(node -e \"const m = require\\('./node_modules/tsx/package.json'\\); console.log\\(m.version\\)\")",
+      "PowerShell(cd \"D:\\\\wlabs\\\\book_memory\"; try { [System.Environment]::SetEnvironmentVariable\\('NOTION_API_KEY', \\(Get-Content .env.local | Select-String 'NOTION_API_KEY' | ForEach-Object { $_ -replace 'NOTION_API_KEY=', '' }\\)\\) } catch {}; npx tsx -e \"try { process.loadEnvFile\\('.env.local'\\) } catch {}; const { Client } = await import\\('@notionhq/client'\\); const notion = new Client\\({ auth: process.env.NOTION_API_KEY }\\); try { const res = await notion.databases.query\\({ database_id: process.env.NOTION_DATABASE_ID, page_size: 1 }\\); const page = res.results[0]; if \\(page && page.object === 'page'\\) { console.log\\('Notion 연결 성공'\\); for \\(const [key, val] of Object.entries\\(page.properties\\)\\) { console.log\\(key + ' -> ' + val.type\\) } } } catch\\(e\\) { console.error\\('오류:', e.message\\) }\" 2>&1)",
+      "PowerShell(Write-Host \"ROOT STRUCTURE:\" ; Get-ChildItem -Path D:\\\\wlabs\\\\book_memory -Depth 0 | Where-Object { $_.Name -notlike '.git' -and $_.Name -notlike 'node_modules' } | Select-Object -ExpandProperty Name | Sort-Object ; Write-Host \"`nAPP FOLDER:\" ; Get-ChildItem -Path D:\\\\wlabs\\\\book_memory\\\\app -Recurse -Depth 2 | Select-Object -ExpandProperty Name | Sort-Object ; Write-Host \"`nLIB FOLDER:\" ; Get-ChildItem -Path D:\\\\wlabs\\\\book_memory\\\\lib -Recurse -Depth 2 | Select-Object -ExpandProperty Name | Sort-Object)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(dir D:\\\\wlabs\\\\book_memory\\\\app\\\\api)",
+      "Bash(dir D:\\\\wlabs\\\\book_memory\\\\components)",
+      "Bash(Get-ChildItem \"D:\\\\wlabs\\\\book_memory\\\\app\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "Bash(npm run *)",
+      "Bash(awk '/^export function BookDetailClient/,0' D:/wlabs/book_memory/components/bookshelf/BookDetailClient.tsx)",
+      "Bash(awk *)",
+      "Bash(npm *)",
+      "Bash(Get-Content \"D:\\\\wlabs\\\\book_memory\\\\package.json\")",
+      "Bash(Select-String -Pattern \"eslint\" -Context 0,3)",
+      "Bash(git add *)",
+      "Bash(git -C \"D:/wlabs/book_memory\" add PLANS.md docs/exec/NEXT_SESSION.md docs/exec/open-decisions.md)",
+      "Bash(git -C \"D:/wlabs/book_memory\" status)",
+      "Bash(git *)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import Link from 'next/link'
 import type { ApiResponse, Book, BookStats, FilterState, ViewMode } from '@/types'
 import { SORT_OPTIONS, type SortOption } from '@/lib/constants/book'
 import { BookGallery } from '@/components/bookshelf/BookGallery'
@@ -236,7 +237,15 @@ export function BookshelfClient({ initialBooks, stats, allKeywords }: BookshelfC
 
   return (
     <main className="min-h-screen bg-white px-4 py-8 max-w-7xl mx-auto">
-      <BookshelfHeader stats={stats} />
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+        <BookshelfHeader stats={stats} />
+        <Link
+          href="/bookshelf/new"
+          className="shrink-0 px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          + 책 등록
+        </Link>
+      </div>
       <BookshelfSearchBar value={searchQuery} onChange={setSearchQuery} />
       <div className="mb-4">
         <BookFilter
