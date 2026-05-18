@@ -141,7 +141,7 @@ export function MateClient({ initialSessions }: MateClientProps) {
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       {/* 좌측: 세션 목록 (md 이상) */}
-      <aside className="w-64 shrink-0 border-r border-gray-200 bg-white hidden md:block">
+      <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hidden md:block">
         <SessionList
           sessions={sessions}
           activeSessionId={activeSessionId}
@@ -151,16 +151,16 @@ export function MateClient({ initialSessions }: MateClientProps) {
       </aside>
 
       {/* 우측: 대화 창 */}
-      <div className="flex flex-1 flex-col min-w-0">
-        <header className="border-b border-gray-200 px-4 py-2.5 bg-white flex items-center gap-2">
+      <div className="flex flex-1 flex-col min-w-0 bg-white dark:bg-gray-950">
+        <header className="border-b border-gray-200 dark:border-gray-800 px-4 py-2.5 bg-white dark:bg-gray-950 flex items-center gap-2">
           {/* 모바일: 새 대화 버튼 */}
           <button
             onClick={startNewSession}
-            className="md:hidden text-xs px-2 py-1 rounded border border-gray-300 text-gray-500 hover:text-gray-800 shrink-0"
+            className="md:hidden text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 shrink-0"
           >
             + 새 대화
           </button>
-          <h1 className="text-sm font-semibold text-gray-800 truncate">
+          <h1 className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
             {activeSessionId
               ? sessions.find((s) => s.id === activeSessionId)?.title ?? '대화'
               : '새 대화'}
@@ -171,10 +171,10 @@ export function MateClient({ initialSessions }: MateClientProps) {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4">
               <p className="text-2xl">📚</p>
-              <p className="text-gray-500 text-sm max-w-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm">
                 읽은 책에서 남긴 메모와 하이라이트를 바탕으로 답변해 드릴게요.
               </p>
-              <div className="flex flex-col gap-2 text-xs text-gray-400">
+              <div className="flex flex-col gap-2 text-xs text-gray-400 dark:text-gray-500">
                 <p>예시: 불편함을 피하려 할 때 생기는 문제에 대해 읽었던 내용 찾아줘</p>
                 <p>예시: 자산관리 관련해서 읽은 책들의 핵심 메모 정리해줘</p>
                 <p>예시: 최근 별점 5개 준 책들의 공통점을 분석해줘</p>

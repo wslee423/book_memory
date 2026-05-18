@@ -25,7 +25,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   }
 
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-3">
+    <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-3">
       <div className="flex gap-2 items-end">
         <textarea
           ref={textareaRef}
@@ -33,7 +33,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           rows={2}
           disabled={disabled}
           onKeyDown={handleKeyDown}
-          className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+          className="flex-1 resize-none rounded-xl border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
         />
         <button
           onClick={submit}

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { COMPLETED_STATUSES, type SortOption } from '@/lib/constants/book'
-import type { Book, BookPage, BookStats, BookStatus, ContentType } from '@/types'
+import type { Book, BookPage, BookStats, BookStatus, ContentType, TimelineMonth } from '@/types'
 
 export interface FetchBooksParams {
   status?: string
@@ -239,4 +239,55 @@ export async function fetchAllCategories(): Promise<string[]> {
   return Array.from(
     new Set((data as { category: string | null }[]).map((b) => b.category).filter((c): c is string => c !== null))
   ).sort()
+}
+
+const KO_MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+
+interface RawTimelineBook {
+  id: string
+  title: string
+  author: string | null
+  category: string | null
+  rating: number | null
+  cover_url: string | null
+  read_end: string
+}
+
+export async function fetchTimeline(): Promise<TimelineMonth[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .schema('book_memory')
+    .from('books')
+    .select('id, title, author, category, rating, cover_url, read_end')
+    .not('read_end', 'is', null)
+    .order('read_end', { ascending: false })
+
+  const books = (data ?? []) as RawTimelineBook[]
+  const monthMap = new Map<string, RawTimelineBook[]>()
+
+  for (const b of books) {
+    const d = new Date(b.read_end)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    if (!monthMap.has(key)) monthMap.set(key, [])
+    monthMap.get(key)!.push(b)
+  }
+
+  return Array.from(monthMap.entries())
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([month, items]) => {
+      const [year, m] = month.split('-')
+      return {
+        month,
+        label: `${year}년 ${KO_MONTHS[Number(m) - 1]}`,
+        books: items.map((b) => ({
+          id: b.id,
+          title: b.title,
+          author: b.author,
+          category: b.category,
+          rating: b.rating,
+          coverUrl: b.cover_url,
+          readEnd: b.read_end,
+        })),
+      }
+    })
 }

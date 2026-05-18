@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { STATUS_OPTIONS } from '@/lib/constants/book'
 
-const INPUT = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
-const LABEL = 'block text-sm font-medium text-gray-700 mb-1'
+const INPUT = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400'
+const LABEL = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -104,7 +104,7 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
                 key={n}
                 type="button"
                 onClick={() => setRating(rating === n ? null : n)}
-                className={`text-2xl transition-colors ${n <= (rating ?? 0) ? 'text-yellow-400' : 'text-gray-200'} hover:text-yellow-300`}
+                className={`text-2xl transition-colors ${n <= (rating ?? 0) ? 'text-yellow-400' : 'text-gray-200 dark:text-gray-700'} hover:text-yellow-300`}
               >
                 ★
               </button>
@@ -138,10 +138,10 @@ export function BookForm({ categories = [] }: { categories?: string[] }) {
         <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://..." className={INPUT} />
       </Field>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
 
       <div className="flex gap-3 justify-end pt-2">
-        <button type="button" onClick={() => router.back()} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">
+        <button type="button" onClick={() => router.back()} className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
           취소
         </button>
         <button

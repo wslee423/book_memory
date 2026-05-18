@@ -12,7 +12,7 @@ interface BookFilterProps {
 }
 
 const SELECT_CLASS =
-  'border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400'
+  'border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500'
 
 export function BookFilter({
   filters,
@@ -81,7 +81,7 @@ export function BookFilter({
         {hasActiveFilter && (
           <button
             onClick={onReset}
-            className="text-sm text-gray-500 underline hover:text-gray-800 transition-colors"
+            className="text-sm text-gray-500 dark:text-gray-400 underline hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
           >
             필터 초기화
           </button>
@@ -98,8 +98,8 @@ export function BookFilter({
                 onClick={() => toggleKeyword(kw)}
                 className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                   active
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-gray-100 text-gray-700 border-gray-200 hover:border-gray-400'
+                    ? 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 {kw}

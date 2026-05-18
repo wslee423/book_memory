@@ -28,15 +28,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-sm w-full p-8 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-bold text-center mb-2">나의 책장</h1>
-        <p className="text-gray-500 text-center text-sm mb-6">AI 독서 비서</p>
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="max-w-sm w-full p-8 bg-white dark:bg-gray-900 rounded-lg shadow dark:shadow-none dark:border dark:border-gray-800">
+        <h1 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-gray-100">나의 책장</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-center text-sm mb-6">AI 독서 비서</p>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               이메일
             </label>
@@ -47,13 +47,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="이메일을 입력하세요"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-gray-900 text-white rounded-md hover:bg-gray-700 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors"
           >
             {loading ? '전송 중...' : '로그인 링크 받기'}
           </button>
@@ -61,7 +61,7 @@ export default function LoginPage() {
         {message && (
           <p
             className={`mt-4 text-sm text-center ${
-              message.includes('실패') ? 'text-red-600' : 'text-green-600'
+              message.includes('실패') ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
             }`}
           >
             {message}

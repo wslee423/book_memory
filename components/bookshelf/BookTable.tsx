@@ -33,9 +33,9 @@ export function BookTable({ books }: BookTableProps) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
+          <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             {COLUMNS.map((c) => (
-              <th key={c.key} className="text-left px-4 py-3 font-medium text-gray-700">
+              <th key={c.key} className="text-left px-4 py-3 font-medium text-gray-700 dark:text-gray-300">
                 {c.label}
               </th>
             ))}
@@ -46,26 +46,26 @@ export function BookTable({ books }: BookTableProps) {
             <tr
               key={book.id}
               onClick={() => router.push(`/bookshelf/${book.id}`)}
-              className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+              className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors"
             >
-              <td className="px-4 py-3 font-medium text-gray-900 max-w-[200px] truncate">
+              <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate">
                 {book.title}
               </td>
-              <td className="px-4 py-3 text-gray-600">{book.author ?? '-'}</td>
-              <td className="px-4 py-3 text-gray-600">{book.category ?? '-'}</td>
+              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{book.author ?? '-'}</td>
+              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{book.category ?? '-'}</td>
               <td className="px-4 py-3">
                 {book.status ? <StatusBadge status={book.status} /> : '-'}
               </td>
               <td className="px-4 py-3">
                 <StarRating rating={book.rating} />
               </td>
-              <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+              <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                 {formatReadPeriod(book.readStart, book.readEnd)}
               </td>
-              <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">
+              <td className="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[160px] truncate">
                 {book.oneWord.length > 0 ? book.oneWord.join(', ') : '-'}
               </td>
-              <td className="px-4 py-3 text-gray-600 max-w-[240px]">
+              <td className="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[240px]">
                 <p className="line-clamp-2">{book.summary ?? '-'}</p>
               </td>
             </tr>

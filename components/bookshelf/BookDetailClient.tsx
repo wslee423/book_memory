@@ -39,22 +39,22 @@ function BookDetailMeta({ book }: { book: Book }) {
     <section className="flex gap-6 mb-8">
       <BookCover coverUrl={book.coverUrl} title={book.title} />
       <div className="flex flex-col gap-2 flex-1 min-w-0">
-        <h1 className="text-2xl font-bold text-gray-900 leading-tight">{book.title}</h1>
-        {book.author && <p className="text-gray-600">{book.author}</p>}
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{book.title}</h1>
+        {book.author && <p className="text-gray-600 dark:text-gray-400">{book.author}</p>}
         <BookMetaBadges book={book} />
         {(book.readStart ?? book.readEnd) && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {formatReadPeriod(book.readStart, book.readEnd)}
           </p>
         )}
         <BookKeywords keywords={book.keywords} oneWord={book.oneWord} />
         {book.summary && (
-          <p className="text-sm text-gray-700 border-l-4 border-gray-200 pl-3 mt-1">
+          <p className="text-sm text-gray-700 dark:text-gray-300 border-l-4 border-gray-200 dark:border-gray-700 pl-3 mt-1">
             {book.summary}
           </p>
         )}
         {book.review && (
-          <p className="text-sm text-gray-600 italic mt-1">&ldquo;{book.review}&rdquo;</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 italic mt-1">&ldquo;{book.review}&rdquo;</p>
         )}
       </div>
     </section>
@@ -65,13 +65,13 @@ function BookCover({ coverUrl, title }: { coverUrl: string | null; title: string
   const sizeClass = 'w-[140px] h-[196px] sm:w-[200px] sm:h-[280px]'
   if (!coverUrl) {
     return (
-      <div className={`flex-shrink-0 ${sizeClass} bg-gray-200 flex items-center justify-center text-gray-400 text-sm rounded shadow-md`}>
+      <div className={`flex-shrink-0 ${sizeClass} bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm rounded shadow-md ring-1 ring-black/5 dark:ring-white/10`}>
         표지 없음
       </div>
     )
   }
   return (
-    <div className={`flex-shrink-0 relative ${sizeClass} rounded overflow-hidden shadow-md`}>
+    <div className={`flex-shrink-0 relative ${sizeClass} rounded overflow-hidden shadow-md ring-1 ring-black/5 dark:ring-white/10`}>
       <Image
         src={coverUrl}
         alt={title}
@@ -87,7 +87,7 @@ function BookMetaBadges({ book }: { book: Book }) {
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
       {book.category && (
-        <span className="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded border border-blue-200">
+        <span className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 text-xs px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
           {book.category}
         </span>
       )}
@@ -107,7 +107,7 @@ function BookKeywords({ keywords, oneWord }: { keywords: string[]; oneWord: stri
       {keywords.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {keywords.map((kw) => (
-            <span key={kw} className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+            <span key={kw} className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs px-2 py-0.5 rounded-full">
               {kw}
             </span>
           ))}
@@ -116,7 +116,7 @@ function BookKeywords({ keywords, oneWord }: { keywords: string[]; oneWord: stri
       {oneWord.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {oneWord.map((w) => (
-            <span key={w} className="bg-yellow-50 text-yellow-700 text-xs px-2 py-0.5 rounded-full border border-yellow-200">
+            <span key={w} className="bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400 text-xs px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800">
               {w}
             </span>
           ))}
@@ -154,7 +154,7 @@ function BookDetailPages({
 
   return (
     <section>
-      <div className="flex gap-1 border-b border-gray-200 mb-4 overflow-x-auto">
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 mb-4 overflow-x-auto">
         {TAB_LABELS.map(({ key, label }) => {
           const count = countsByType[key]
           return (
@@ -163,18 +163,18 @@ function BookDetailPages({
               onClick={() => onTabChange(key)}
               className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === key
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
               {label}
-              {count > 0 && <span className="ml-1 text-xs text-gray-400">({count})</span>}
+              {count > 0 && <span className="ml-1 text-xs text-gray-400 dark:text-gray-500">({count})</span>}
             </button>
           )
         })}
       </div>
       {filteredPages.length === 0 ? (
-        <div className="flex items-center justify-center py-12 text-gray-400">
+        <div className="flex items-center justify-center py-12 text-gray-400 dark:text-gray-500">
           기록이 없습니다.
         </div>
       ) : (
@@ -192,10 +192,10 @@ function BookDetailPages({
 
 function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: AdjacentBook | null }) {
   return (
-    <nav className="flex justify-between gap-4 mt-12 pt-6 border-t text-sm">
+    <nav className="flex justify-between gap-4 mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 text-sm">
       <div className="min-w-0">
         {prev && (
-          <Link href={`/bookshelf/${prev.id}`} className="text-gray-600 hover:text-gray-900 flex items-center gap-1">
+          <Link href={`/bookshelf/${prev.id}`} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1">
             <span className="shrink-0">←</span>
             <span className="truncate">{prev.title}</span>
           </Link>
@@ -203,7 +203,7 @@ function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: Adjacent
       </div>
       <div className="min-w-0 text-right">
         {next && (
-          <Link href={`/bookshelf/${next.id}`} className="text-gray-600 hover:text-gray-900 flex items-center gap-1 justify-end">
+          <Link href={`/bookshelf/${next.id}`} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1 justify-end">
             <span className="truncate">{next.title}</span>
             <span className="shrink-0">→</span>
           </Link>
@@ -233,18 +233,18 @@ export function BookDetailClient({ book: initialBook, pages: initialPages, prev,
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 max-w-4xl mx-auto">
+    <main className="min-h-screen bg-white dark:bg-gray-950 px-4 py-8 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <Link
           href="/bookshelf"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
           ← 책장으로 돌아가기
         </Link>
         {!editing && (
           <button
             onClick={() => setEditing(true)}
-            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg text-gray-600 hover:border-gray-500 hover:text-gray-900 transition-colors"
+            className="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-500 dark:hover:border-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
           >
             책 정보 수정
           </button>

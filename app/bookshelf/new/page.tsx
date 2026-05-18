@@ -12,14 +12,14 @@ export default async function NewBookPage() {
   const categories = await fetchAllCategories()
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 max-w-2xl mx-auto">
+    <main className="min-h-screen bg-white dark:bg-gray-950 px-4 py-8 max-w-2xl mx-auto">
       <Link
         href="/bookshelf"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-6"
       >
         ← 책장으로 돌아가기
       </Link>
-      <h1 className="text-xl font-bold text-gray-900 mb-6">새 책 등록</h1>
+      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">새 책 등록</h1>
       <BookForm categories={categories} />
     </main>
   )

@@ -24,7 +24,7 @@ export function BookGallery({ books }: BookGalleryProps) {
           href={`/bookshelf/${book.id}`}
           className="flex flex-col gap-2 group"
         >
-          <div className="overflow-hidden rounded shadow-sm group-hover:shadow-md transition-shadow">
+          <div className="overflow-hidden rounded shadow-sm group-hover:shadow-md transition-shadow ring-1 ring-black/5 dark:ring-white/10">
             {book.coverUrl ? (
               <div className="relative aspect-[5/7]">
                 <Image
@@ -36,17 +36,17 @@ export function BookGallery({ books }: BookGalleryProps) {
                 />
               </div>
             ) : (
-              <div className="aspect-[5/7] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+              <div className="aspect-[5/7] bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
                 표지 없음
               </div>
             )}
           </div>
           <div className="px-0.5">
-            <p className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 leading-snug">
               {book.title}
             </p>
             {book.author && (
-              <p className="text-xs text-gray-500 mt-0.5 truncate">{book.author}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{book.author}</p>
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1">
               <StarRating rating={book.rating} />

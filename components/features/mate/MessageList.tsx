@@ -28,7 +28,7 @@ export function MessageList({ messages, bottomRef }: MessageListProps) {
             className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
               msg.role === 'user'
                 ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-800'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
             }`}
           >
             {msg.content}
@@ -39,7 +39,7 @@ export function MessageList({ messages, bottomRef }: MessageListProps) {
 
           {msg.role === 'assistant' && msg.sources && msg.sources.length > 0 && !msg.streaming && (
             <div className="max-w-[80%] flex flex-col gap-2 w-full">
-              <p className="text-xs text-gray-400 px-1">참조한 독서 기록</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 px-1">참조한 독서 기록</p>
               {msg.sources.map((src, i) => (
                 <SourceCard key={i} source={src} />
               ))}

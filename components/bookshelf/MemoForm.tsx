@@ -58,7 +58,7 @@ export function MemoForm({ bookId, onSaved }: MemoFormProps) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full py-2 text-sm text-gray-400 border border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-500 transition-colors"
+        className="w-full py-2 text-sm text-gray-400 dark:text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-blue-400 hover:text-blue-500 transition-colors"
       >
         + 메모 추가
       </button>
@@ -66,12 +66,12 @@ export function MemoForm({ bookId, onSaved }: MemoFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900 flex flex-col gap-3">
       <div className="flex gap-2 items-center">
         <select
           value={contentType}
           onChange={(e) => setContentType(e.target.value as ContentType)}
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm bg-white"
+          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
         >
           {CONTENT_TYPE_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -83,7 +83,7 @@ export function MemoForm({ bookId, onSaved }: MemoFormProps) {
           onChange={(e) => setPageNumber(e.target.value)}
           placeholder="페이지 (선택)"
           min={1}
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm w-28 bg-white"
+          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 text-sm w-28 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
@@ -92,16 +92,16 @@ export function MemoForm({ bookId, onSaved }: MemoFormProps) {
         onChange={(e) => setContent(e.target.value)}
         placeholder="내용을 입력하세요..."
         rows={4}
-        className="border border-gray-300 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
 
       <div className="flex gap-2 justify-end">
         <button
           type="button"
           onClick={() => { setOpen(false); setError(null) }}
-          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+          className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
         >
           취소
         </button>

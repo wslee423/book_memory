@@ -16,8 +16,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko">
-      <body className={inter.className}>
+    <html lang="ko" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('theme')
+                if (stored !== 'light') {
+                  document.documentElement.classList.add('dark')
+                }
+              } catch {}
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} bg-white dark:bg-gray-950`}>
         <GlobalNav />
         {children}
       </body>

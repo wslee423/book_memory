@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { STATUS_OPTIONS } from '@/lib/constants/book'
 import type { Book, BookStatus } from '@/types'
 
-const INPUT = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
-const LABEL = 'block text-sm font-medium text-gray-700 mb-1'
+const INPUT = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400'
+const LABEL = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -73,7 +73,7 @@ export function BookEditForm({ book, categories, onSaved, onCancel }: BookEditFo
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-50 border border-gray-200 rounded-xl p-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
       <Field label="제목 *">
         <input value={title} onChange={(e) => setTitle(e.target.value)} className={INPUT} />
       </Field>
@@ -110,7 +110,7 @@ export function BookEditForm({ book, categories, onSaved, onCancel }: BookEditFo
                 key={n}
                 type="button"
                 onClick={() => setRating(rating === n ? null : n)}
-                className={`text-2xl transition-colors ${n <= (rating ?? 0) ? 'text-yellow-400' : 'text-gray-200'} hover:text-yellow-300`}
+                className={`text-2xl transition-colors ${n <= (rating ?? 0) ? 'text-yellow-400' : 'text-gray-200 dark:text-gray-700'} hover:text-yellow-300`}
               >
                 ★
               </button>
@@ -144,10 +144,10 @@ export function BookEditForm({ book, categories, onSaved, onCancel }: BookEditFo
         <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://..." className={INPUT} />
       </Field>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
 
       <div className="flex gap-3 justify-end pt-1">
-        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
           취소
         </button>
         <button

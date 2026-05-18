@@ -70,10 +70,10 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
   }
 
   return (
-    <div className={`group relative bg-white rounded-r-lg pl-4 pr-3 py-3 ${borderClass}`}>
+    <div className={`group relative bg-white dark:bg-gray-900 rounded-r-lg pl-4 pr-3 py-3 ${borderClass}`}>
       {/* 페이지 번호 */}
       {page.pageNumber != null && (
-        <span className="text-xs text-gray-400 mr-2">p.{page.pageNumber}</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500 mr-2">p.{page.pageNumber}</span>
       )}
 
       {/* 호버 시 액션 버튼 */}
@@ -82,7 +82,7 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
           <button
             onClick={() => { setEditing(true); setEditContent(page.content) }}
             title="수정"
-            className="p-1 text-gray-300 hover:text-blue-500 transition-colors text-xs"
+            className="p-1 text-gray-300 dark:text-gray-600 hover:text-blue-500 transition-colors text-xs"
           >
             ✏️
           </button>
@@ -90,15 +90,15 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
             <button
               onClick={() => setConfirmDelete(true)}
               title="삭제"
-              className="p-1 text-gray-300 hover:text-red-500 transition-colors text-xs"
+              className="p-1 text-gray-300 dark:text-gray-600 hover:text-red-500 transition-colors text-xs"
             >
               🗑️
             </button>
           ) : (
-            <span className="flex items-center gap-1 text-xs bg-white border border-gray-200 rounded px-2 py-0.5 shadow-sm">
+            <span className="flex items-center gap-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-2 py-0.5 shadow-sm">
               <button onClick={handleDelete} disabled={loading} className="text-red-500 hover:text-red-700 font-medium">삭제</button>
-              <span className="text-gray-300">|</span>
-              <button onClick={() => setConfirmDelete(false)} className="text-gray-500 hover:text-gray-700">취소</button>
+              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <button onClick={() => setConfirmDelete(false)} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">취소</button>
             </span>
           )}
         </div>
@@ -112,11 +112,11 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
             onChange={(e) => setEditContent(e.target.value)}
             rows={4}
             autoFocus
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
           <div className="flex gap-2 justify-end">
-            <button onClick={() => { setEditing(false); setError(null) }} className="text-sm text-gray-500 hover:text-gray-700">취소</button>
+            <button onClick={() => { setEditing(false); setError(null) }} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">취소</button>
             <button
               onClick={handleSave}
               disabled={loading || !editContent.trim()}
@@ -127,7 +127,7 @@ export function BookPageItem({ page, onUpdated, onDeleted }: BookPageItemProps) 
           </div>
         </div>
       ) : (
-        <p className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed pr-14">{page.content}</p>
+        <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200 leading-relaxed pr-14">{page.content}</p>
       )}
     </div>
   )

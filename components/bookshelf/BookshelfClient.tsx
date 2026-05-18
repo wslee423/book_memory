@@ -24,7 +24,7 @@ const DEFAULT_FILTERS: FilterState = {
 const SEARCH_DEBOUNCE_MS = 300
 
 const SELECT_CLASS =
-  'border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400'
+  'border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500'
 
 function buildSearchParams(filters: FilterState, search: string, sort: SortOption): URLSearchParams {
   const params = new URLSearchParams()
@@ -127,9 +127,9 @@ function BookshelfHeader({ stats }: { stats: BookStats }) {
   return (
     <div className="flex flex-wrap gap-4 mb-6">
       {items.map((it) => (
-        <div key={it.label} className="bg-gray-50 rounded-lg px-4 py-3 text-center">
-          <p className="text-2xl font-bold text-gray-900">{it.value}</p>
-          <p className="text-sm text-gray-500 mt-0.5">{it.label}</p>
+        <div key={it.label} className="bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 text-center">
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{it.value}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{it.label}</p>
         </div>
       ))}
     </div>
@@ -150,7 +150,7 @@ function BookshelfSearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="제목, 저자, 요약, 리뷰 검색..."
-        className="w-full max-w-md border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+        className="w-full max-w-md border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
       />
     </div>
   )
@@ -185,8 +185,8 @@ function BookshelfControls({
             onClick={() => onViewModeChange(mode)}
             className={`px-3 py-1.5 text-sm rounded border transition-colors ${
               viewMode === mode
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-gray-500'
+                ? 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100'
+                : 'bg-white dark:bg-transparent text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-400'
             }`}
           >
             {mode === 'gallery' ? '갤러리' : '표'}
@@ -213,10 +213,10 @@ function BookshelfContent({
   if (error) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-600 dark:text-red-400">{error}</p>
         <button
           onClick={onRetry}
-          className="px-4 py-2 text-sm bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors"
+          className="px-4 py-2 text-sm bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
         >
           다시 시도
         </button>
@@ -236,7 +236,7 @@ export function BookshelfClient({ initialBooks, stats, allKeywords }: BookshelfC
   } = useBookshelf(initialBooks)
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 max-w-7xl mx-auto">
+    <main className="min-h-screen bg-white dark:bg-gray-950 px-4 py-8 max-w-7xl mx-auto">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <BookshelfHeader stats={stats} />
         <Link
@@ -278,7 +278,7 @@ function BookSkeleton({ viewMode }: { viewMode: ViewMode }) {
     return (
       <div className="space-y-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+          <div key={i} className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
         ))}
       </div>
     )
@@ -287,9 +287,9 @@ function BookSkeleton({ viewMode }: { viewMode: ViewMode }) {
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="flex flex-col gap-2">
-          <div className="aspect-[5/7] bg-gray-100 rounded animate-pulse" />
-          <div className="h-4 bg-gray-100 rounded animate-pulse" />
-          <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+          <div className="aspect-[5/7] bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+          <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+          <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded animate-pulse w-2/3" />
         </div>
       ))}
     </div>

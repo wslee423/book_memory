@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { COMPLETED_STATUSES } from '@/lib/constants/book'
+import { fetchTimeline } from '@/lib/supabase/books'
 import { StatsClient } from '@/components/features/stats/StatsClient'
 import type { BookStatus, StatsData } from '@/types'
 
@@ -55,6 +56,6 @@ export default async function StatsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const stats = await getStats()
-  return <StatsClient stats={stats} />
+  const [stats, timeline] = await Promise.all([getStats(), fetchTimeline()])
+  return <StatsClient stats={stats} timeline={timeline} />
 }
