@@ -6,7 +6,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '나의 책장',
+  title: 'book_memory',
   description: 'AI 독서 비서 — 읽은 책과 생각을 다시 꺼내는 도구',
 }
 
