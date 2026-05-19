@@ -13,19 +13,7 @@ export function GlobalNav() {
   ]
   return (
     <nav className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 h-14 flex items-center px-4 gap-4 overflow-x-auto">
-      <Link href="/bookshelf" className="flex items-center gap-1.5 shrink-0 group">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-500 shrink-0">
-          <rect x="3" y="2" width="9" height="16" rx="1.5" className="fill-current opacity-20" />
-          <rect x="3" y="2" width="9" height="16" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="8" y="2" width="9" height="16" rx="1.5" className="fill-current opacity-10" />
-          <rect x="8" y="2" width="9" height="16" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="5.5" y1="6" x2="9.5" y2="6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-          <line x1="5.5" y1="8.5" x2="9.5" y2="8.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-        </svg>
-        <span className="font-semibold text-sm tracking-tight">
-          <span className="text-gray-900 dark:text-gray-100">book</span><span className="text-blue-500">_memory</span>
-        </span>
-      </Link>
+      <span className="font-bold text-gray-900 dark:text-gray-100 text-sm shrink-0">book_memory</span>
       <div className="flex items-center gap-1 shrink-0">
         {links.map(({ href, label }) => (
           <Link
