@@ -7,9 +7,9 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 export function GlobalNav() {
   const pathname = usePathname()
   const links = [
-    { href: '/bookshelf', label: '📚 책장' },
-    { href: '/mate', label: '🤖 독서메이트' },
-    { href: '/stats', label: '📊 통계' },
+    { href: '/bookshelf', label: '책장' },
+    { href: '/mate', label: '독서메이트' },
+    { href: '/stats', label: '통계' },
   ]
   return (
     <nav className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 h-14 flex items-center px-4 gap-4 overflow-x-auto">

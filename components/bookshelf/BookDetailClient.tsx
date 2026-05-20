@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Book, BookPage, ContentType } from '@/types'
 import { StarRating } from '@/components/ui/StarRating'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -214,10 +215,29 @@ function AdjacentNav({ prev, next }: { prev: AdjacentBook | null; next: Adjacent
 }
 
 export function BookDetailClient({ book: initialBook, pages: initialPages, prev, next, categories }: BookDetailClientProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabKey>('all')
   const [pages, setPages] = useState<BookPage[]>(initialPages)
   const [book, setBook] = useState<Book>(initialBook)
   const [editing, setEditing] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    if (!confirm(`"${book.title}" 책을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/books/${book.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        let errorMsg = '삭제에 실패했습니다.'
+        try { errorMsg = (await res.json()).error ?? errorMsg } catch { /* non-JSON response */ }
+        alert(errorMsg)
+        return
+      }
+      router.push('/bookshelf')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   function handlePageSaved(newPage: BookPage) {
     setPages((prev) => [...prev, newPage])
@@ -242,12 +262,21 @@ export function BookDetailClient({ book: initialBook, pages: initialPages, prev,
           ← 책장으로 돌아가기
         </Link>
         {!editing && (
-          <button
-            onClick={() => setEditing(true)}
-            className="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-500 dark:hover:border-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-          >
-            책 정보 수정
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditing(true)}
+              className="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-500 dark:hover:border-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              책 정보 수정
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="text-sm px-3 py-1.5 border border-red-300 dark:border-red-800 rounded-lg text-red-500 dark:text-red-400 hover:border-red-500 dark:hover:border-red-600 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50"
+            >
+              {deleting ? '삭제 중...' : '삭제'}
+            </button>
+          </div>
         )}
       </div>
 

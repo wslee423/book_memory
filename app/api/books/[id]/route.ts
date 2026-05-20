@@ -78,6 +78,31 @@ export async function GET(
   }
 }
 
+export async function DELETE(
+  _request: Request,
+  { params }: RouteContext,
+): Promise<NextResponse<ApiResponse<null>>> {
+  const { user, response } = await requireUser()
+  if (!user) return response as NextResponse<ApiResponse<null>>
+
+  const supabase = await createClient()
+
+  // 임베딩 삭제
+  await supabase.schema('book_memory').from('embeddings').delete().eq('book_id', params.id)
+
+  // 페이지 삭제
+  await supabase.schema('book_memory').from('book_pages').delete().eq('book_id', params.id)
+
+  // 책 삭제
+  const { error } = await supabase.schema('book_memory').from('books').delete().eq('id', params.id)
+
+  if (error) {
+    return NextResponse.json({ data: null, error: '삭제에 실패했습니다.' }, { status: 500 })
+  }
+
+  return NextResponse.json({ data: null, error: null }, { status: 200 })
+}
+
 export async function PATCH(
   request: Request,
   { params }: RouteContext,
